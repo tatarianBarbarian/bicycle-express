@@ -54,20 +54,18 @@ function listen(port) {
 }
 
 function get(url, ...handlers) {
-    let firstHandler = routes.GET[url];
-    
-    handlers.forEach((handler) => {        
-        if (!firstHandler) {
-            firstHandler = makeHandler(handler);
-            routes.GET[url] = firstHandler;
+    handlers.reduce((acc, cur) => {
+        if (!acc) {
+            routes.GET[url] = makeHandler(cur);
+            
+            return routes.GET[url];
         }
         else {
-            routes.GET[url].setNext(makeHandler(handler));
-            routes.GET[url] = routes.GET[url].nextHandler;
+            acc.setNext(makeHandler(cur));
+            
+            return acc.nextHandler;
         }
-    });
-
-    routes.GET[url] = firstHandler;
+    }, routes.GET[url]);
 }
 
 const press = () => ({
@@ -83,8 +81,12 @@ app.get(
         res.write('Hello from /123 get route!');
         next('first');
     },
-    (req, res) => {
+    (req, res, next) => {
         res.write('\nHi, im second handler!');
+        next();
+    },
+    (req, res) => {
+        res.write('\nHi, im third handler!');
     }
 );
 
