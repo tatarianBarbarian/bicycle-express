@@ -1,40 +1,11 @@
 import http from 'http';
+import { Handler } from './src/Handler.js';
 
 const routes = {
     GET: {},
 };
 
-class Request {
-    constructor(req) {
-        this.req = req;
-    }
-}
-
-class Handler {
-    constructor(handler) {
-        this.handler = handler;
-        this.nextHandler = null;
-    }
-
-    setNext(handler) {
-        this.nextHandler = handler;
-    }
-
-    handle(req, res) {
-        function next(name) {
-            if (this.nextHandler) {
-                this.nextHandler.handle(req, res);
-            }
-            else {
-                return null;
-            }
-        }
-        
-        this.handler(req, res, next.bind(this));
-    }
-}
-
-const makeHandler = (handler) => new Handler(handler);
+const middleware = new Handler((req, res, next) => { next() });
 
 function listen(port) {
     const server = http.createServer((request, response) => {
@@ -42,6 +13,8 @@ function listen(port) {
                               'Trailer': 'Content-MD5' });        
         const {method, url} = request;
         const routeHandler = routes[method][url];
+
+        middleware.handle(request, response);
 
         if (routeHandler) {
             routeHandler.handle(request, response);
@@ -56,37 +29,59 @@ function listen(port) {
 function get(url, ...handlers) {
     handlers.reduce((acc, cur) => {
         if (!acc) {
-            routes.GET[url] = makeHandler(cur);
+            routes.GET[url] = new Handler(cur);
             
             return routes.GET[url];
         }
         else {
-            acc.setNext(makeHandler(cur));
+            acc.setNext(new Handler(cur));
             
             return acc.nextHandler;
         }
     }, routes.GET[url]);
 }
 
+function use(first, second) {
+    switch (typeof first) {
+        case 'function':
+            middleware.setNext(new Handler(first));
+            break;
+        case 'string':
+            get(first, second);
+            break;
+    }
+};
+
 const press = () => ({
     listen,
-    get
+    get,
+    use
 });
 
 const app = press();
 
+app.use((req, res, next) => {
+    res.write('Message from general middleware\n');
+    next();
+});
+
+app.use('/123', (req, res, next) => {
+    res.write('Message from route-specific /123 middleware\n');
+    next();
+});
+
 app.get(
     '/123', 
     (req, res, next) => {
-        res.write('Hello from /123 get route!');
+        res.write('Hello from /123 get route!\n');
         next('first');
     },
     (req, res, next) => {
-        res.write('\nHi, im second handler!');
+        res.write('Hi, im second /123 handler!\n');
         next();
     },
     (req, res) => {
-        res.write('\nHi, im third handler!');
+        res.write('Hi, im third /123 handler!\n');
     }
 );
 
