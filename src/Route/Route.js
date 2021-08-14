@@ -91,7 +91,7 @@ const urlParamsGetters = {
     const regex = new RegExp(regexString, 'gm');
     const match = regex.exec(url);
     
-    return match.groups;
+    return {...match.groups};
   }
 };
 
