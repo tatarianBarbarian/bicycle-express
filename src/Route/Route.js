@@ -23,7 +23,7 @@ export const findRouteType = (rule) => {
     return 'plain';
 };
 
-const routeMatchers = {
+export const routeMatchers = {
     plain: (url, route) => url === route,
     parametrized: (url, route) => {
       const replacements = route.match(/:[a-zA-Z0-9]+/gm);
