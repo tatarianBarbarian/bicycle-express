@@ -35,9 +35,10 @@ app.get(
 )
 
 app.get(
-    '/users/:userId',
+    '/users/:userId/post/:postId',
     (req, res) => {
         res.write(`I'm parametrized route handler!\n`);
+        res.write(`${JSON.stringify(req.params)}\n`);
     }
 )
 

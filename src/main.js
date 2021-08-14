@@ -1,10 +1,7 @@
 import http from 'http';
-import { get, getRouteHandler, matchRouteForUrl } from './Route/Route.js';
 import { Request } from './Request/Request.js';
+import { get, getRouteHandler, matchRouteForUrl } from './Route/Route.js';
 import { use, startMiddleware } from './middleware/middleware.js';
-import { processUrl } from './middleware/library.js';
-
-use(processUrl());
 
 function listen(port) {
     const server = http.createServer((request, response) => {
