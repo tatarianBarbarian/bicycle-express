@@ -1,6 +1,6 @@
 import http from 'http';
 import { Handler } from './Handler/Handler.js';
-import { get, getRouteHandler, matchRouteForUrl } from './Route/Route.js';
+import { get, getRouteHandler, matchRouteForUrl, getUrlParams } from './Route/Route.js';
 
 class Request {
     raw = null;
@@ -19,6 +19,7 @@ class Request {
 }
 
 const processUrlMiddleware = new Handler((req, res, next) => {
+    req.params = getUrlParams(req.method, req.url);
     next();
 });
 const middleware = processUrlMiddleware;
