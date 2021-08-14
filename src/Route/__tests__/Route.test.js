@@ -1,4 +1,4 @@
-import { addRoute, findRouteType, getRoute, getRoutePath, routeMatchers } from '../Route.js';
+import { addRoute, findRouteType, getRoute, getRoutePath, getUrlParams, routeMatchers } from '../Route.js';
 
 describe('findRouteType', () => {
      const plainRouteType = findRouteType('/users');
@@ -63,5 +63,18 @@ describe('routeMatchers', () => {
           expect(globed('/users', globLikeRoute)).toBeTruthy();
           expect(globed('/usars', globLikeRoute)).toBeTruthy();
           expect(globed('/usars/31', globLikeRoute)).toBeFalsy();
+     });
+});
+
+describe('getUrlParams', () => {
+     test('Correctly gets parameters from parametrized routes', () => {
+          addRoute('GET', '/users/:userId', [() => {}]);
+          expect(getUrlParams('GET', '/users/35')).toEqual({userId: '35'});
+
+          addRoute('GET', '/users/:userId/post/:postId', [() => {}]);
+          expect(getUrlParams('GET', '/users/35/post/20')).toEqual({userId: '35', postId: '20'});
+
+          addRoute('GET', '/users', [() => {}]);
+          expect(getUrlParams('GET', '/users')).toEqual({});
      });
 });

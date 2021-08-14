@@ -60,12 +60,12 @@ export const addRoute = (method, path, handlers) => {
     }
 
     const route = routes[method][path];
-    addHandlers(route, handlers);
+    attachHandlers(route, handlers);
     route.type = findRouteType(path);
     route.path = path;
 };
 
-export const addHandlers = (route, handlers) => {    
+export const attachHandlers = (route, handlers) => {    
     handlers.reduce((acc, cur) => {
         if (!acc) {
             route.handler = new Handler(cur);
@@ -78,6 +78,30 @@ export const addHandlers = (route, handlers) => {
             return acc.nextHandler;
         }
     }, route.handler);
+};
+
+const urlParamsGetters = {
+  plain: (url) => ({}),
+  globed: (url) => ({}),
+  parametrized: (url, route) => {
+    const path = getRoutePath(route);
+    const re = /:[a-zA-Z0-9]+/g;
+    const replacement = '[a-zA-Z0-9]+';
+    let regexString = path.replace(re, (m) => `(?<${m.replace(':', '')}>${replacement})`);
+    const regex = new RegExp(regexString, 'gm');
+    const match = regex.exec(url);
+    
+    return match.groups;
+  }
+};
+
+export const getUrlParams = (method, url) => {
+  const matchingRoute = matchRouteForUrl(method, url);
+  if (!matchingRoute) return {};
+
+  const getParams = urlParamsGetters[getRouteType(matchingRoute)];
+
+  return getParams(url, matchingRoute);
 };
 
 export function get(url, ...handlers) {
