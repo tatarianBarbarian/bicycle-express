@@ -1,4 +1,4 @@
-import { findRouteType } from '../Route.js';
+import { addRoute, findRouteType, getRoute, getRoutePath, getRouteType } from '../Route.js';
 
 describe('findRouteType', () => {
      const plainRoute = findRouteType('/users');
@@ -24,3 +24,14 @@ describe('findRouteType', () => {
      });
 });
 
+describe('addRoute', () => {
+     test('correctly adds and gets route', () => {
+          const method = 'GET';
+          const path = '/123';
+
+          addRoute(method, path, [(req, res) => {}]);
+          const route = getRoute(method, path);
+          
+          expect(getRoutePath(route)).toBe(path);
+     });
+});
