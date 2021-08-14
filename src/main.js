@@ -1,22 +1,7 @@
 import http from 'http';
 import { Handler } from './Handler/Handler.js';
 import { get, getRouteHandler, matchRouteForUrl, getUrlParams } from './Route/Route.js';
-
-class Request {
-    raw = null;
-    params = {};
-    query = {};
-    method = 'GET';
-
-    constructor(raw) {
-        const url = new URL(raw.url, `http://${raw.headers.host}`);
-        // this.raw = raw;
-        this.url = url.pathname;
-        this.query = Object.fromEntries(url.searchParams.entries());
-        this.method = raw.method;
-        console.log(this);
-    }
-}
+import { Request } from './Request/Request.js';
 
 const processUrlMiddleware = new Handler((req, res, next) => {
     req.params = getUrlParams(req.method, req.url);
