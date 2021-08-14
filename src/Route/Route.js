@@ -8,7 +8,7 @@ const routes = {
 export const getRoute = (method, path) => routes[method][path];
 export const getRouteType = (route) => route.type;
 export const getRouteHandler = (route) => route.handler;
-
+export const getRoutePath = (route) => route.path;
 export const findRouteType = (rule) => {
     const isParametrized = rule.match(/\/:[a-zA-z0-9]+/gm);
     const isGlobed = rule.match(/[\.\*!?\(\)|\[\]]/gm);
@@ -62,6 +62,7 @@ export const addRoute = (method, path, handlers) => {
     const route = routes[method][path];
     addHandlers(route, handlers);
     route.type = findRouteType(path);
+    route.path = path;
 };
 
 export const addHandlers = (route, handlers) => {    
