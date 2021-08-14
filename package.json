@@ -12,5 +12,8 @@
   "license": "ISC",
   "devDependencies": {
     "nodemon": "^2.0.12"
+  },
+  "dependencies": {
+    "micromatch": "^4.0.4"
   }
 }

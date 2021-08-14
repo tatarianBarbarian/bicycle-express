@@ -27,6 +27,20 @@ app.get(
     }
 );
 
+app.get(
+    '/12?3',
+    (req, res) => {
+        res.write(`I'm glob route pattern handler!\n`);
+    }
+)
+
+app.get(
+    '/users/:userId',
+    (req, res) => {
+        res.write(`I'm parametrized route handler!\n`);
+    }
+)
+
 app.listen(3000);
 
 

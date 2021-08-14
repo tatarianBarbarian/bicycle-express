@@ -1,9 +1,8 @@
 import http from 'http';
-import { Handler } from './Handler.js';
+import { Handler } from './Handler/Handler.js';
+import { get, getRouteHandler, matchRouteForUrl } from './Route/Route.js';
 
-const routes = {
-    GET: {},
-};
+// TODO: Препроцессинг req.url, чтобы убрать квери и сложить их в обжект
 
 const middleware = new Handler((req, res, next) => { next() });
 
@@ -13,8 +12,8 @@ function listen(port) {
             'Content-Type': 'text/plain',
             'Trailer': 'Content-MD5' 
         });        
-        const {method, url} = request;
-        const routeHandler = routes[method][url];
+        const { method, url } = request;
+        const routeHandler = getRouteHandler(matchRouteForUrl(method, url));
 
         middleware.handle(request, response);
 
@@ -26,21 +25,6 @@ function listen(port) {
     });
 
     server.listen(port);
-}
-
-function get(url, ...handlers) {
-    handlers.reduce((acc, cur) => {
-        if (!acc) {
-            routes.GET[url] = new Handler(cur);
-            
-            return routes.GET[url];
-        }
-        else {
-            acc.setNext(new Handler(cur));
-            
-            return acc.nextHandler;
-        }
-    }, routes.GET[url]);
 }
 
 function use(first, second) {
