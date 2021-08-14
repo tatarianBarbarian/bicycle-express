@@ -9,7 +9,7 @@ export const getRoute = (method, path) => routes[method][path];
 export const getRouteType = (route) => route.type;
 export const getRouteHandler = (route) => route?.handler || null;
 export const getRoutePath = (route) => route.path;
-export const findRouteType = (rule) => {
+export const findRouteType = (rule) => { // todo: rule validation?
     const isParametrized = rule.match(/\/:[a-zA-z0-9]+/gm);
     const isGlobed = rule.match(/[\.\*!?\(\)|\[\]]/gm);
     
