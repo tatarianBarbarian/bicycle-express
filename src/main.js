@@ -9,7 +9,7 @@ function listen(port) {
  
         const { method, url } = req;
 
-        startMiddleware(req, response);
+        startMiddleware(req, response); // TODO: Guarantee middlewares execution order, including route handlers
 
         const routeHandler = getRouteHandler(matchRouteForUrl(method, url));
 
