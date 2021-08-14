@@ -10,6 +10,5 @@ export class Request {
         this.url = url.pathname;
         this.query = Object.fromEntries(url.searchParams.entries());
         this.method = raw.method;
-        console.log(this);
     }
 }
