@@ -14,7 +14,7 @@ function listen(port) {
         const routeHandler = getRouteHandler(matchRouteForUrl(method, url));
 
         if (routeHandler) {
-            routeHandler.handle(req, response);
+            routeHandler.handle(req, response); // FIXME: Abstracton leak?
         }
 
         response.end();
