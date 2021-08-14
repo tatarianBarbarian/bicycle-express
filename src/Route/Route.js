@@ -25,7 +25,7 @@ export const findRouteType = (rule) => {
 
 const replaceAll = (str, regex, replacement) => str
   .match(regex)
-  .reduce((acc, cur) => acc.replace(regex, replacement),str);
+  .reduce((acc) => acc.replace(regex, replacement), str);
 
 export const routeMatchers = {
     plain: (url, route) => url === route,
