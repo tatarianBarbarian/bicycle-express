@@ -40,7 +40,7 @@ export const routeMatchers = {
 
 export const matchRouteForUrl = (method, url) => {
     const allRoutesOnMethod = routes[method];
-    let result = null; // TODO: Must be an array for cases when we have two routes like /123 and /1?3, etc.
+    let result = null; // TODO: Must be an array for cases when we have two or more routes like /123 and /1?3, etc.
 
     for (let routePath of Object.keys(allRoutesOnMethod)) {
       const currentRoute = getRoute(method, routePath);
