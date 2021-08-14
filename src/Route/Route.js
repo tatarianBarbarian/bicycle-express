@@ -23,14 +23,14 @@ export const findRouteType = (rule) => {
     return 'plain';
 };
 
+const replaceAll = (str, regex, replacement) => str
+  .match(regex)
+  .reduce((acc, cur) => acc.replace(regex, replacement),str);
+
 export const routeMatchers = {
     plain: (url, route) => url === route,
     parametrized: (url, route) => {
-      const replacements = route.match(/:[a-zA-Z0-9]+/gm);
-      // FIXME: maybe replace.all will do the job??
-      const regexString = replacements.reduce((acc, cur) => {
-        return acc.replace(cur, '[a-zA-Z0-9]+');
-      }, route);
+      const regexString = replaceAll(route, /:[a-zA-Z0-9]+/gm, '[a-zA-Z0-9]+');
       const regex = new RegExp('^' + regexString + '$', 'gm');
   
       return Boolean(url.match(regex));
