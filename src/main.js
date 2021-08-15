@@ -8,7 +8,7 @@ export const press = () => {
     const middlewareRegistry = initMiddlewareRegistry();
     initDefaultMiddleware(middlewareRegistry);
 
-    const app = (request, response) => {
+    const instance = (request, response) => {
         const req = new Request(request);
     
         const { method, url } = req;
@@ -24,10 +24,10 @@ export const press = () => {
         response.end();
     }
     
-    app.server = createServer(app);
-    app.listen = (port) => startServer(app.server, port);
-    app.get = get;
-    app.use = makeUse(middlewareRegistry);
+    instance.server = createServer(instance);
+    instance.listen = (port) => startServer(instance.server, port);
+    instance.get = get;
+    instance.use = makeUse(middlewareRegistry);
     
-    return app;
+    return instance;
 };
