@@ -1,4 +1,4 @@
-import { createRoutesRegistry, makeGet, getRouteHandler, matchRouteForUrl, routeMatchers } from './Route/Route.js';
+import { createRoutesRegistry, makeGet, getRouteHandler, matchRouteForUrl } from './Route/Route.js';
 import { initDefaultMiddleware, initMiddlewareRegistry, makeUse, startMiddlewareChain } from './middleware/middleware.js';
 import { createServer, startServer } from './Server/Server.js';
 import { Request } from './Request/Request.js';
