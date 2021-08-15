@@ -1,29 +1,14 @@
-import http from 'http';
-import { Request } from './Request/Request.js';
-import { get, getRouteHandler, matchRouteForUrl } from './Route/Route.js';
-import { use, startMiddleware } from './middleware/middleware.js';
+import { get } from './Route/Route.js';
+import { use } from './middleware/middleware.js';
+import { createServer, startServer } from './Server/Server.js';
 
-export const press = () => {
-    const server = http.createServer((request, response) => {
-        const req = new Request(request);
- 
-        const { method, url } = req;
+const app = (req, res, next) => {
+    next();
+}
 
-        startMiddleware(req, response); // TODO: Guarantee middlewares execution order, including route handlers
+app.server = createServer();
+app.listen = (port) => startServer(app.server, port);
+app.get = get;
+app.use = use;
 
-        const routeHandler = getRouteHandler(matchRouteForUrl(method, url));
-
-        if (routeHandler) {
-            routeHandler.handle(req, response); // FIXME: Abstracton leak?
-        }
-
-        response.end();
-    });
-
-    return {
-        server,
-        listen: (port) => server.listen(port),
-        get,
-        use
-    };
-};
+export const press = () => app;
