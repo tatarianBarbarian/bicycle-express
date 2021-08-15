@@ -2,30 +2,40 @@ import { Handler } from "../Handler/Handler.js";
 import { get } from "../Route/Route.js";
 import { processUrl } from "./library.js";
 
-const dummyMiddleware = new Handler((req, res, next) => { next(); });
+export const initMiddlewareRegistry = () => {
+    const dummyMiddleware = new Handler((req, res, next) => { next(); });
+    const middlewareChain = {
+        start: dummyMiddleware,
+        end: dummyMiddleware,
+    };
 
-const middlewareChain = {
-    start: dummyMiddleware,
-    end: dummyMiddleware,
-};
+    return middlewareChain;
+}
 
-export const attachMiddleware = (cb) => {
+export const attachMiddleware = (chain, cb) => {
     const newMiddleware = new Handler(cb);
 
-    middlewareChain.end.setNext(newMiddleware);
-    middlewareChain.end = newMiddleware;
-};
-export const startMiddleware = (req, res) => middlewareChain.start.handle(req, res);
-
-export function use(first, second) {
-    switch (typeof first) {
-        case 'function':
-            attachMiddleware(first);
-            break;
-        case 'string':
-            get(first, second);
-            break;
-    }
+    chain.end.setNext(newMiddleware);
+    chain.end = newMiddleware;
 };
 
-use(processUrl());
+export const startMiddlewareChain = (chain, req, res) => chain.start.handle(req, res);
+
+export function makeUse(chain) {
+    return function(first, second) {
+        switch (typeof first) {
+            case 'function':
+                attachMiddleware(chain, first);
+                break;
+            case 'string':
+                get(first, second);
+                break;
+        }
+    };
+};
+
+export const initDefaultMiddleware = (chain) => {
+    const use = makeUse(chain);
+    
+    use(processUrl());
+};
