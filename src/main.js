@@ -3,7 +3,7 @@ import { Request } from './Request/Request.js';
 import { get, getRouteHandler, matchRouteForUrl } from './Route/Route.js';
 import { use, startMiddleware } from './middleware/middleware.js';
 
-function listen(port) {
+export const press = () => {
     const server = http.createServer((request, response) => {
         const req = new Request(request);
  
@@ -20,11 +20,10 @@ function listen(port) {
         response.end();
     });
 
-    server.listen(port);
-}
-
-export const press = () => ({
-    listen,
-    get,
-    use
-});
+    return {
+        server,
+        listen: (port) => server.listen(port),
+        get,
+        use
+    };
+};

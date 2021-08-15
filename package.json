@@ -14,7 +14,8 @@
   "devDependencies": {
     "jest": "^27.0.6",
     "jest-esm-transformer": "^1.0.0",
-    "nodemon": "^2.0.12"
+    "nodemon": "^2.0.12",
+    "supertest": "^6.1.5"
   },
   "dependencies": {
     "micromatch": "^4.0.4"
