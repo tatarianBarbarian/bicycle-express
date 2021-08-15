@@ -34,8 +34,14 @@ export function makeUse(chain) {
     };
 };
 
+let isDefaultMiddlewareInited = false;
+
 export const initDefaultMiddleware = (chain) => {
-    const use = makeUse(chain);
+    if (isDefaultMiddlewareInited) return;
     
+    const use = makeUse(chain);
+
     use(processUrl());
+
+    isDefaultMiddlewareInited = true;
 };
