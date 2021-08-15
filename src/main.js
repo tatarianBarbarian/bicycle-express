@@ -1,21 +1,23 @@
-import { get, getRouteHandler, matchRouteForUrl } from './Route/Route.js';
+import { createRoutesRegistry, makeGet, getRouteHandler, matchRouteForUrl, routeMatchers } from './Route/Route.js';
 import { initDefaultMiddleware, initMiddlewareRegistry, makeUse, startMiddlewareChain } from './middleware/middleware.js';
 import { createServer, startServer } from './Server/Server.js';
 import { Request } from './Request/Request.js';
 
-
 export const press = () => {
     const middlewareRegistry = initMiddlewareRegistry();
-    initDefaultMiddleware(middlewareRegistry);
+    const routesRegistry = createRoutesRegistry();
+
+    initDefaultMiddleware(middlewareRegistry, routesRegistry);
 
     const instance = (request, response) => {
         const req = new Request(request);
+        req.instance = instance;
     
         const { method, url } = req;
     
         startMiddlewareChain(middlewareRegistry, req, response); // TODO: Guarantee middlewares execution order, including route handlers
     
-        const routeHandler = getRouteHandler(matchRouteForUrl(method, url));
+        const routeHandler = getRouteHandler(matchRouteForUrl(routesRegistry, method, url));
     
         if (routeHandler) {
             routeHandler.handle(req, response); // FIXME: Abstracton leak?
@@ -23,11 +25,13 @@ export const press = () => {
     
         response.end();
     }
-    
+
+    instance.middlewareRegistry = middlewareRegistry;
+    instance.routesRegistry = routesRegistry;
     instance.server = createServer(instance);
     instance.listen = (port) => startServer(instance.server, port);
-    instance.get = get;
-    instance.use = makeUse(middlewareRegistry);
+    instance.get = makeGet(routesRegistry);
+    instance.use = makeUse(middlewareRegistry, routesRegistry);
     
     return instance;
 };

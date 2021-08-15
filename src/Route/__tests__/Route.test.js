@@ -1,4 +1,6 @@
-import { addRoute, findRouteType, getRoute, getRoutePath, getUrlParams, routeMatchers } from '../Route.js';
+import { addRoute, createRoutesRegistry, findRouteType, getRoute, getRoutePath, getUrlParams, routeMatchers } from '../Route.js';
+
+const routesRegistry = createRoutesRegistry();
 
 describe('findRouteType', () => {
      const plainRouteType = findRouteType('/users');
@@ -29,8 +31,8 @@ describe('addRoute', () => {
           const method = 'GET';
           const path = '/123';
 
-          addRoute(method, path, [(req, res) => {}]);
-          const route = getRoute(method, path);
+          addRoute(routesRegistry, method, path, [(req, res) => {}]);
+          const route = getRoute(routesRegistry, method, path);
           
           expect(getRoutePath(route)).toBe(path);
      });
@@ -68,13 +70,13 @@ describe('routeMatchers', () => {
 
 describe('getUrlParams', () => {
      test('Correctly gets parameters from parametrized routes', () => {
-          addRoute('GET', '/users/:userId', [() => {}]);
-          expect(getUrlParams('GET', '/users/35')).toEqual({userId: '35'});
+          addRoute(routesRegistry, 'GET', '/users/:userId', [() => {}]);
+          expect(getUrlParams(routesRegistry, 'GET', '/users/35')).toEqual({userId: '35'});
 
-          addRoute('GET', '/users/:userId/post/:postId', [() => {}]);
-          expect(getUrlParams('GET', '/users/35/post/20')).toEqual({userId: '35', postId: '20'});
+          addRoute(routesRegistry, 'GET', '/users/:userId/post/:postId', [() => {}]);
+          expect(getUrlParams(routesRegistry, 'GET', '/users/35/post/20')).toEqual({userId: '35', postId: '20'});
 
-          addRoute('GET', '/users', [() => {}]);
-          expect(getUrlParams('GET', '/users')).toEqual({});
+          addRoute(routesRegistry, 'GET', '/users', [() => {}]);
+          expect(getUrlParams(routesRegistry, 'GET', '/users')).toEqual({});
      });
 });

@@ -1,11 +1,8 @@
 import { Handler } from '../Handler/Handler.js';
 import micromatch from 'micromatch';
 
-const routes = {
-    GET: {},
-};
-
-export const getRoute = (method, path) => routes[method][path];
+export const createRoutesRegistry = () => ({ GET: {} });
+export const getRoute = (registry, method, path) => registry[method][path];
 export const getRouteType = (route) => route.type;
 export const getRouteHandler = (route) => route?.handler || null;
 export const getRoutePath = (route) => route.path;
@@ -38,12 +35,12 @@ export const routeMatchers = {
     globed: (url, route) => micromatch.isMatch(url, route)
 };
 
-export const matchRouteForUrl = (method, url) => {
-    const allRoutesOnMethod = routes[method];
+export const matchRouteForUrl = (registry, method, url) => {
+    const allRoutesOnMethod = registry[method];
     let result = null; // TODO: Must be an array for cases when we have two or more routes like /123 and /1?3, etc.
 
     for (let routePath of Object.keys(allRoutesOnMethod)) {
-      const currentRoute = getRoute(method, routePath);
+      const currentRoute = getRoute(registry, method, routePath);
       const match = routeMatchers[getRouteType(currentRoute)];
   
       if (match(url, routePath)) {
@@ -54,12 +51,12 @@ export const matchRouteForUrl = (method, url) => {
     return result;
 }
 
-export const addRoute = (method, path, handlers) => {
-    if (!getRoute(method, path)) {
-        routes[method][path] = {};
+export const addRoute = (registry, method, path, handlers) => {
+    if (!getRoute(registry, method, path)) {
+        registry[method][path] = {};
     }
 
-    const route = routes[method][path];
+    const route = registry[method][path];
     attachHandlers(route, handlers);
     route.type = findRouteType(path);
     route.path = path;
@@ -95,8 +92,8 @@ const urlParamsGetters = {
   }
 };
 
-export const getUrlParams = (method, url) => {
-  const matchingRoute = matchRouteForUrl(method, url);
+export const getUrlParams = (registry, method, url) => {
+  const matchingRoute = matchRouteForUrl(registry, method, url);
   if (!matchingRoute) return {};
 
   const getParams = urlParamsGetters[getRouteType(matchingRoute)];
@@ -104,6 +101,4 @@ export const getUrlParams = (method, url) => {
   return getParams(url, matchingRoute);
 };
 
-export function get(url, ...handlers) {
-    addRoute('GET', url, handlers);
-}
+export const makeGet = (registry) => (url, ...handlers) => addRoute(registry, 'GET', url, handlers);

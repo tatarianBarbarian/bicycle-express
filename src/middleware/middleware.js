@@ -1,5 +1,5 @@
 import { Handler } from "../Handler/Handler.js";
-import { get } from "../Route/Route.js";
+import { makeGet } from "../Route/Route.js";
 import { processUrl } from "./library.js";
 
 export const initMiddlewareRegistry = () => {
@@ -21,11 +21,13 @@ export const attachMiddleware = (chain, cb) => {
 
 export const startMiddlewareChain = (chain, req, res) => chain.start.handle(req, res);
 
-export function makeUse(chain) {
+export function makeUse(middlewareChain, routesRegistry) {
+    const get = makeGet(routesRegistry);
+
     return function(first, second) {
         switch (typeof first) {
             case 'function':
-                attachMiddleware(chain, first);
+                attachMiddleware(middlewareChain, first);
                 break;
             case 'string':
                 get(first, second);
@@ -36,10 +38,10 @@ export function makeUse(chain) {
 
 let isDefaultMiddlewareInited = false;
 
-export const initDefaultMiddleware = (chain) => {
+export const initDefaultMiddleware = (chain, routesRegistry) => {
     if (isDefaultMiddlewareInited) return;
-    
-    const use = makeUse(chain);
+
+    const use = makeUse(chain, routesRegistry);
 
     use(processUrl());
 
