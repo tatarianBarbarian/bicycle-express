@@ -1,4 +1,4 @@
-import { addRoute, createRoutesRegistry, findRouteType, getRoute, getRoutePath, getUrlParams, routeMatchers } from '../Route.js';
+import { addRoute, createRoutesRegistry, findRouteType, getRoute, getRoutePath, getUrlParams, matchRouteForUrl, routeMatchers, runRouteHandlers } from '../Route.js';
 
 const routesRegistry = createRoutesRegistry();
 
@@ -78,5 +78,19 @@ describe('getUrlParams', () => {
 
           addRoute(routesRegistry, 'GET', '/users', [() => {}]);
           expect(getUrlParams(routesRegistry, 'GET', '/users')).toEqual({});
+     });
+});
+
+describe('Route handlers', () => {
+     it('Should run all handlers which are appled to given URL', () => {
+          const routesRegistry = createRoutesRegistry();
+          const marks = [];
+
+          addRoute(routesRegistry, 'GET', '/', [(req, res) => { marks.push(1); }]);
+          addRoute(routesRegistry, 'GET', '/**', [(req, res) => { marks.push(2); }]);
+          const matchingRoutes = matchRouteForUrl(routesRegistry, 'GET', '/');
+          runRouteHandlers(matchingRoutes);
+
+          expect(marks).toEqual([1,2]);
      });
 });

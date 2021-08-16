@@ -42,14 +42,14 @@ export const routeMatchers = {
 
 export const matchRouteForUrl = (registry, method, url) => {
     const allRoutesOnMethod = [...registry.get(method).keys()];
-    let result = null; // TODO: Must be an array for cases when we have two or more routes like /123 and /1?3, etc.
+    let result = []; // TODO: Must be an array for cases when we have two or more routes like /123 and /1?3, etc.
 
     for (let routePath of allRoutesOnMethod) {
       const currentRoute = getRoute(registry, method, routePath);
       const match = routeMatchers[getRouteType(currentRoute)];
   
       if (match(url, routePath)) {
-        result = currentRoute;
+        result.push(currentRoute);
       }
     }
 
@@ -62,24 +62,24 @@ export const addRoute = (registry, method, path, handlers) => {
     }
 
     const route = registry.get(method).get(path);
-    attachHandlers(route, handlers);
     route.type = findRouteType(path);
     route.path = path;
+    attachHandlers(route, handlers);
 };
 
-export const attachHandlers = (route, handlers) => {    
-    handlers.reduce((acc, cur) => {
-        if (!acc) {
-            route.handler = new Handler(cur);
-            
-            return route.handler;
-        }
-        else {
-            acc.setNext(new Handler(cur));
-            
-            return acc.nextHandler;
-        }
-    }, route.handler);
+export const attachHandlers = (route, handlers) => { 
+  handlers.reduce((acc, cur) => {
+      if (!acc) {
+          route.handler = new Handler(cur);
+          
+          return route.handler;
+      }
+      else {
+          acc.setNext(new Handler(cur));
+          
+          return acc.nextHandler;
+      }
+  }, route.handler);
 };
 
 const urlParamsGetters = {
@@ -98,12 +98,21 @@ const urlParamsGetters = {
 };
 
 export const getUrlParams = (registry, method, url) => {
-  const matchingRoute = matchRouteForUrl(registry, method, url);
-  if (!matchingRoute) return {};
+  const matchingRoutes = matchRouteForUrl(registry, method, url);
+  if (!matchingRoutes) return {};
 
-  const getParams = urlParamsGetters[getRouteType(matchingRoute)];
+  const params = matchingRoutes.reduce((acc, cur) => {
+    const getParams = urlParamsGetters[getRouteType(cur)];
 
-  return getParams(url, matchingRoute);
+    return {...acc, ...getParams(url, cur)};
+  }, {});
+
+  return params;
 };
 
 export const makeGet = (registry) => (url, ...handlers) => addRoute(registry, 'GET', url, handlers);
+export const runRouteHandlers = (routes, req, res) => {
+  routes.forEach(route => {
+    route.handler.handle(req, res);
+  });
+};

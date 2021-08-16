@@ -1,4 +1,4 @@
-import { createRoutesRegistry, makeGet, getRouteHandler, matchRouteForUrl } from './Route/Route.js';
+import { createRoutesRegistry, makeGet, getRouteHandler, matchRouteForUrl, runRouteHandlers } from './Route/Route.js';
 import { initDefaultMiddleware, initMiddlewareRegistry, makeUse, startMiddlewareChain } from './middleware/middleware.js';
 import { createServer, startServer } from './Server/Server.js';
 import { Request } from './Request/Request.js';
@@ -22,12 +22,8 @@ export const press = () => {
 
         startMiddlewareChain(middlewareRegistry, req, response); // TODO: Guarantee middlewares execution order, including route handlers
     
-        const matchingRoute = matchRouteForUrl(routesRegistry, method, url);
-        const routeHandler = getRouteHandler(matchingRoute);
-    
-        if (routeHandler) {
-            routeHandler.handle(req, response); // FIXME: Abstracton leak?
-        }
+        const matchingRoutes = matchRouteForUrl(routesRegistry, method, url);
+        runRouteHandlers(matchingRoutes, req, response);
     
         response.end();
     }
