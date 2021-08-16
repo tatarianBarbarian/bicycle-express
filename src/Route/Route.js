@@ -1,8 +1,13 @@
 import { Handler } from '../Handler/Handler.js';
 import micromatch from 'micromatch';
 
-export const createRoutesRegistry = () => ({ GET: {} });
-export const getRoute = (registry, method, path) => registry[method][path];
+export const createRoutesRegistry = () => { 
+  const registry = new Map();
+  registry.set('GET', new Map());
+
+  return registry;
+};
+export const getRoute = (registry, method, path) => registry.get(method).get(path);
 export const getRouteType = (route) => route.type;
 export const getRouteHandler = (route) => route?.handler || null;
 export const getRoutePath = (route) => route.path;
@@ -36,10 +41,10 @@ export const routeMatchers = {
 };
 
 export const matchRouteForUrl = (registry, method, url) => {
-    const allRoutesOnMethod = registry[method];
+    const allRoutesOnMethod = [...registry.get(method).keys()];
     let result = null; // TODO: Must be an array for cases when we have two or more routes like /123 and /1?3, etc.
 
-    for (let routePath of Object.keys(allRoutesOnMethod)) {
+    for (let routePath of allRoutesOnMethod) {
       const currentRoute = getRoute(registry, method, routePath);
       const match = routeMatchers[getRouteType(currentRoute)];
   
@@ -53,10 +58,10 @@ export const matchRouteForUrl = (registry, method, url) => {
 
 export const addRoute = (registry, method, path, handlers) => {
     if (!getRoute(registry, method, path)) {
-        registry[method][path] = {};
+        registry.get(method).set(path, {});
     }
 
-    const route = registry[method][path];
+    const route = registry.get(method).get(path);
     attachHandlers(route, handlers);
     route.type = findRouteType(path);
     route.path = path;
