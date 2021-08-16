@@ -15,6 +15,7 @@ export const press = () => {
     
         if (instance.mountpath !== '/') {
             req.url = req.url.replace(instance.mountpath, '');
+            req.url = req.url.length ?  req.url : '/';
         }
         
         const { method, url } = req;

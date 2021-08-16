@@ -13,6 +13,10 @@ subApp.use((req, res, next) => {
     next();
 });
 
+subApp.get('/', (req, res) => {
+    res.write('Subapp root\n');
+});
+
 subApp.get('/ru', (req, res) => {
     res.write('Привет\n');
 });
