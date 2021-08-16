@@ -1,47 +1,31 @@
 import { press } from './src/main.js';
 
 const app = press();
+const subApp = press();
 
 app.use((req, res, next) => {
-    res.write('Message from general middleware\n');
+    res.write('Project-wide MW\n');
     next();
 });
 
-app.use('/123', (req, res, next) => {
-    res.write('Message from route-specific /123 middleware\n');
+subApp.use((req, res, next) => {
+    res.write('/hello wide MW\n');
     next();
 });
 
-app.get(
-    '/123', 
-    (req, res, next) => {
-        res.write('Hello from /123 get route!\n');
-        next('first');
-    },
-    (req, res, next) => {
-        res.write('Hi, im second /123 handler!\n');
-        next();
-    },
-    (req, res) => {
-        res.write('Hi, im third /123 handler!\n');
-    }
-);
+subApp.get('/ru', (req, res) => {
+    res.write('Привет\n');
+});
 
-app.get(
-    '/12?3',
-    (req, res) => {
-        res.write(`I'm glob route pattern handler!\n`);
-    }
-)
+subApp.get('/en', (req, res) => {
+    res.write('Hello\n');
+});
 
-app.get(
-    '/users/:userId/post/:postId',
-    (req, res) => {
-        res.write(`I'm parametrized route handler!\n`);
-        res.write(`${JSON.stringify(req.params)}\n`);
-    }
-)
+subApp.get('/user/:userId', (req, res) => {
+    const { params } = req;
+    res.write(`${JSON.stringify(params)}\n`);
+});
+
+app.use('/hello', subApp);
 
 app.listen(3000);
-
-

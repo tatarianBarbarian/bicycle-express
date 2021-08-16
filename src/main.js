@@ -10,14 +10,19 @@ export const press = () => {
     initDefaultMiddleware(middlewareRegistry, routesRegistry);
 
     const instance = (request, response) => {
-        const req = new Request(request);
+        const req = request instanceof Request ? request : new Request(request);
         req.instance = instance;
     
+        if (instance.mountpath !== '/') {
+            req.url = req.url.replace(instance.mountpath, '');
+        }
+        
         const { method, url } = req;
-    
+
         startMiddlewareChain(middlewareRegistry, req, response); // TODO: Guarantee middlewares execution order, including route handlers
     
-        const routeHandler = getRouteHandler(matchRouteForUrl(routesRegistry, method, url));
+        const matchingRoute = matchRouteForUrl(routesRegistry, method, url);
+        const routeHandler = getRouteHandler(matchingRoute);
     
         if (routeHandler) {
             routeHandler.handle(req, response); // FIXME: Abstracton leak?
@@ -26,6 +31,8 @@ export const press = () => {
         response.end();
     }
 
+    instance.mountpath = '/';
+    instance.isInstance = true;
     instance.middlewareRegistry = middlewareRegistry;
     instance.routesRegistry = routesRegistry;
     instance.server = createServer(instance);

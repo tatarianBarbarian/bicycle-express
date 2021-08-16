@@ -30,20 +30,20 @@ export function makeUse(middlewareChain, routesRegistry) {
                 attachMiddleware(middlewareChain, first);
                 break;
             case 'string':
-                get(first, second);
+                if (second.isInstance) {
+                    second.mountpath = first;
+                    get(first + '/**', second);
+                } else {
+                    get(first, second);
+                }
+
                 break;
-        }
+        };
     };
 };
 
-let isDefaultMiddlewareInited = false;
-
 export const initDefaultMiddleware = (chain, routesRegistry) => {
-    if (isDefaultMiddlewareInited) return;
-
     const use = makeUse(chain, routesRegistry);
 
     use(processUrl());
-
-    isDefaultMiddlewareInited = true;
 };
