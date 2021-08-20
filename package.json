@@ -2,8 +2,11 @@
   "name": "bicycle-express",
   "type": "module",
   "version": "1.0.0",
-  "description": "",
+  "description": "Attempt to understand express-js api by inventing a bicycle",
   "main": "index.js",
+  "engines": {
+    "node": ">=0.14"
+  },
   "scripts": {
     "start": "npx nodemon index.js",
     "test": "jest"
